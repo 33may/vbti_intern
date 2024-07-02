@@ -11,7 +11,7 @@ class User(BaseModel):
 
 users = [User(id=1, name="John Doe", email="john@example.com")]
 
-@router.get("/", response_model=List[User])
+@router.get("/users", response_model=List[User])
 def get_users():
     return users
 
