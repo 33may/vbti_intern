@@ -1,14 +1,18 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
 
 DATABASE_URL = "postgresql+asyncpg://admin:admin@localhost/vbti"
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True
+)
 
-SessionLocal = sessionmaker(bind=engine,autocommit=False,autoflush=False)
+sessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, autocommit=False, autoflush=False, class_=AsyncSession)
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
+# async def get_db():
+#     async with sessionLocal() as session:
+#         yield session
