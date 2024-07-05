@@ -1,11 +1,14 @@
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.userModel import User
-from app.schemas.userSchema import UserCreate
+from app.db.repos.userRepo import UserRepo
+from app.schemas.userSchema import UserAdd
 
-async def get_users():
-    return
 
-async def create_user():
+async def fetch_users():
+    result = await UserRepo.db_get_users()
+    return result
 
-    return
+async def create_user(user: UserAdd):
+    id = await UserRepo.db_add_user(user)
+    return id

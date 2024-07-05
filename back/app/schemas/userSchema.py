@@ -8,5 +8,5 @@ class UserGet(UserAdd):
     id: int
 
 class UserCreated(BaseModel):
-    message : str
+    message: str
     id: int
