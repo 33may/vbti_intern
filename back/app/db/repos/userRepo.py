@@ -1,13 +1,17 @@
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.db import sessionLocal
 from app.db.models.userModel import User
 from app.schemas.userSchema import UserAdd
+from app.utils.Crypt import Crypt
+
 
 class UserRepo:
     @classmethod
     async def db_add_user(cls, data: UserAdd):
         async with sessionLocal() as session:
             user_dict = data.model_dump()
+            user_dict['password'] = Crypt.hash_password(user_dict['password'])
             user = User(**user_dict)
             session.add(user)
             await session.flush()
@@ -29,3 +33,13 @@ class UserRepo:
             result = await session.execute(query)
             user = result.scalars().first()
             return user
+
+    @classmethod
+    async def db_verify_user(cls, email: str, password: str):
+        async with sessionLocal() as session:
+            query = select(User).where(User.email == email)
+            result = await session.execute(query)
+            user = result.scalars().first()
+            if user and Crypt.verify_password(password, user.password):
+                return user
+            return None

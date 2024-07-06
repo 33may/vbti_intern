@@ -17,7 +17,12 @@ class UserAdd(BaseModel):
 class UserGet(UserAdd):
     id: int
 
+class UserLogin(UserAdd):
+    pass
 
 class UserCreated(BaseModel):
     message: str
     id: int
+
+class LogedIn(BaseModel):
+    message: str
