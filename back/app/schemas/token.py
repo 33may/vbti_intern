@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 class Token(BaseModel):
@@ -6,3 +8,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
+    exp: datetime | None = None

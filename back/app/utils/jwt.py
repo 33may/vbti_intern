@@ -2,7 +2,10 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from app.utils.core.config import settings
 from app.schemas.token import TokenData
+from fastapi import HTTPException
 
+
+blacklist = {}
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
@@ -13,13 +16,28 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str, credentials_exception):
+def verify_token(token: str, credentials_exception) -> TokenData:
+    if token in blacklist and blacklist[token] > datetime.utcnow():
+        raise credentials_exception
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
-        if username is None:
+        exp: int = payload.get("exp")
+        if username is None or exp is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(username=username, exp=datetime.utcfromtimestamp(exp))
     except JWTError:
         raise credentials_exception
     return token_data
+
+def add_token_to_blacklist(token: str):
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    exp = datetime.fromtimestamp(payload["exp"])
+    blacklist[token] = exp
+    clean_blacklist()
+
+def clean_blacklist():
+    now = datetime.now()
+    expired_tokens = [token for token, exp in blacklist.items() if exp <= now]
+    for token in expired_tokens:
+        del blacklist[token]
