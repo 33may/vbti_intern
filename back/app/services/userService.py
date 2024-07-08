@@ -1,10 +1,11 @@
+from datetime import timedelta
+
 from app.db.repos.userRepo import UserRepo
 from app.schemas.userSchema import UserAdd, UserLogin, UserGet
+from app.utils.core.config import settings
 from app.utils.exceptions.WrongCredentials import WrongCredentials
 from app.utils.exceptions.alreadyExistEx import AlreadyExistEx
 from app.utils.jwt import create_access_token
-from datetime import timedelta
-from app.utils.core.config import settings
 
 
 async def fetch_users():

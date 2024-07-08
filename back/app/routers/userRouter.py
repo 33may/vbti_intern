@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("")
-async def get_users(current_user: UserGet = Depends(get_current_user)) -> List[UserGet]:
+async def get_users(current_user: UserGet = Depends(get_current_admin_user)) -> List[UserGet]:
     users = await fetch_users()
     return users
 

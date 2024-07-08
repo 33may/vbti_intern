@@ -18,8 +18,8 @@ class RenewTokenMiddleware(BaseHTTPMiddleware):
                     detail="Could not validate credentials",
                     headers={"WWW-Authenticate": "Bearer"},
                 ))
-                if token_data and token_data.exp - datetime.utcnow() < timedelta(minutes=5):
-                    access_token = create_access_token(data={"sub": token_data.username})
+                if token_data and token_data.exp - datetime.now() < timedelta(minutes=5):
+                    access_token = create_access_token(data={"sub": token_data.email, "account_type": token_data.type})
                     response.headers['Authorization'] = f"Bearer {access_token}"
                 else:
                     response.headers['Authorization'] = f"Bearer {token}"
