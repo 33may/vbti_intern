@@ -17,15 +17,16 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 def verify_token(token: str, credentials_exception) -> TokenData:
-    if token in blacklist and blacklist[token] > datetime.utcnow():
+    if token in blacklist and blacklist[token] > datetime.now():
         raise credentials_exception
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
         exp: int = payload.get("exp")
-        if username is None or exp is None:
+        account_type: str = payload.get("account_type")
+        if username is None or exp is None or account_type is None:
             raise credentials_exception
-        token_data = TokenData(username=username, exp=datetime.utcfromtimestamp(exp))
+        token_data = TokenData(username=username, exp=datetime.utcfromtimestamp(exp), account_type=account_type)
     except JWTError:
         raise credentials_exception
     return token_data

@@ -12,6 +12,7 @@ class UserRepo:
         async with sessionLocal() as session:
             user_dict = data.model_dump()
             user_dict['password'] = Crypt.hash_password(user_dict['password'])
+            user_dict['type'] = 'user'
             user = User(**user_dict)
             session.add(user)
             await session.flush()
