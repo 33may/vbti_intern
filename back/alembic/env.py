@@ -1,7 +1,6 @@
 import asyncio
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool, create_engine
-from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 
 config = context.config
@@ -37,11 +36,10 @@ def do_run_migrations(connection) -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-async def run_migrations_online() -> None:
-    # Use create_engine for synchronous engine
+def run_migrations_online() -> None:
+    # Extract the URL from the configuration
     connectable = create_engine(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+        config.get_main_option("sqlalchemy.url"),
         poolclass=pool.NullPool
     )
 
@@ -54,4 +52,4 @@ async def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run_migrations_online()
