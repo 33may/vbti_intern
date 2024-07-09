@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+
+from app.utils.core.config import settings
 from app.utils.jwt import create_access_token, verify_token
 
 
@@ -19,7 +21,8 @@ class RenewTokenMiddleware(BaseHTTPMiddleware):
                     headers={"WWW-Authenticate": "Bearer"},
                 ))
                 if token_data and token_data.exp - datetime.now() < timedelta(minutes=5):
-                    access_token = create_access_token(data={"sub": token_data.email, "account_type": token_data.type})
+                    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+                    access_token = create_access_token(data={"sub": token_data.email, "account_type": token_data.account_type}, expires_delta=access_token_expires)
                     response.headers['Authorization'] = f"Bearer {access_token}"
                 else:
                     response.headers['Authorization'] = f"Bearer {token}"

@@ -19,9 +19,9 @@ async def get_users(current_user: UserGet = Depends(get_current_admin_user)) -> 
     users = await fetch_users()
     return users
 
-@router.get("/admin")
-async def get_admin_data(current_user: TokenData = Depends(get_current_admin_user)):
-    return {"message": "This is an admin-only endpoint"}
+# @router.get("/admin")
+# async def get_admin_data(current_user: TokenData = Depends(get_current_admin_user)):
+#     return {"message": "This is an admin-only endpoint"}
 
 
 @router.post("/register")

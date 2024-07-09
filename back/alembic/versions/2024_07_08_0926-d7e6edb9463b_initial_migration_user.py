@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.execute(text("""
     CREATE TABLE IF NOT EXISTS public.users
     (   
-        id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1000 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+        id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1000 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
         email character varying(50) COLLATE pg_catalog."default" NOT NULL,
         password character varying(100) COLLATE pg_catalog."default" NOT NULL,
         type character varying(15) COLLATE pg_catalog."default",
