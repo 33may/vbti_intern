@@ -8,3 +8,7 @@ class ProjectAdd(BaseModel):
 
 class ProjectGet(ProjectAdd):
     id: int
+
+
+class AddUserToProjectRequest(BaseModel):
+    user_email: str

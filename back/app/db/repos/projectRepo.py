@@ -1,7 +1,9 @@
 from sqlalchemy import select
 from app.db.db import sessionLocal
-from app.db.models.projectModel import Project
-from app.schemas.projectSchema import ProjectAdd
+from app.db.models.projectModel import Project, UserProject
+from app.db.models.userModel import User
+from app.schemas.projectSchema import ProjectAdd, ProjectGet
+from app.schemas.userSchema import UserGet
 
 
 class ProjectRepo:
@@ -21,3 +23,35 @@ class ProjectRepo:
             result = await session.execute(query)
             projects = result.scalars().all()
             return projects
+
+    @classmethod
+    async def get_project(cls, id: int) -> Project:
+        async with sessionLocal() as session:
+            query = select(Project).where(Project.id == id)
+            result = await session.execute(query)
+            project = result.scalars().first()
+            return project
+
+    @classmethod
+    async def db_get_project_by_id(cls, id: int):
+        async with sessionLocal() as session:
+            query = select(Project).where(Project.id == id)
+            result = await session.execute(query)
+            project = result.scalars().first()
+            return project
+
+    @classmethod
+    async def add_user_to_project(cls, project_data: ProjectGet, user_data: UserGet):
+        async with sessionLocal() as session:
+            user_project = UserProject(user_id=user_data.id, project_id=project_data.id)
+            session.add(user_project)
+            await session.commit()
+            return
+
+    @classmethod
+    async def get_project_users(cls, project: ProjectGet) -> list[User]:
+        async with sessionLocal() as session:
+            query = select(User).where(Project.id == project.id)
+            result = await session.execute(query)
+            users = result.scalars().all()
+            return users

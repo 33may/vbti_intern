@@ -1,9 +1,11 @@
 from pydantic import BaseModel, EmailStr, constr, field_validator
 
+from app.db.models.userModel import User
+
 
 class UserAdd(BaseModel):
     email: EmailStr
-    password: constr(min_length=8, max_length=128)
+    password: constr(min_length=8, max_length=64)
 
     @field_validator("password")
     def validate_password(cls, v):
@@ -14,15 +16,23 @@ class UserAdd(BaseModel):
         return v
 
 
-class UserGet(UserAdd):
+class UserGet(BaseModel):
     id: int
+    email: EmailStr
+
 
 class UserLogin(UserAdd):
     pass
+
 
 class UserCreated(BaseModel):
     message: str
     id: int
 
+
 class LogedIn(BaseModel):
     message: str
+
+
+def convert_user_model_to_schema(user: User) -> UserGet:
+    return UserGet(email=user.email, id=user.id)

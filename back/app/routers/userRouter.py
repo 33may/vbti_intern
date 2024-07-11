@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.schemas.token import Token, TokenData
 from app.schemas.userSchema import UserGet, UserCreated, UserAdd, UserLogin, LogedIn
-from app.services.userService import fetch_users, create_user, login_user
+from app.services.userService import fetch_users, create_user, login_user, fetch_user
 from app.utils.exceptions.WrongCredentials import WrongCredentials
 from app.utils.exceptions.alreadyExistEx import AlreadyExistEx
 from app.dependencies import get_current_user, get_current_admin_user
@@ -18,6 +18,15 @@ router = APIRouter(
 async def get_users(current_user: UserGet = Depends(get_current_admin_user)) -> List[UserGet]:
     users = await fetch_users()
     return users
+
+
+@router.get("/{user_id}")
+async def get_user(user_id: int, current_user: UserGet = Depends(get_current_admin_user)) -> UserGet:
+    try:
+        user = await fetch_user(user_id)
+        return user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # @router.get("/admin")
 # async def get_admin_data(current_user: TokenData = Depends(get_current_admin_user)):
@@ -35,7 +44,7 @@ async def register_user(user: UserAdd) -> UserCreated:
 @router.post("/login")
 async def login_for_access_token(form_data : UserLogin) -> Token:
     try:
-        access_token = await login_user(UserLogin(email=form_data.email, password=form_data.password))
+        access_token = await login_user(form_data)
         return access_token
     except WrongCredentials as e:
         raise HTTPException(status_code=401, detail=e.message)
