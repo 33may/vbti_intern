@@ -1,12 +1,18 @@
+// src/components/LoginForm.tsx
 import React, { useState } from 'react';
-import { Box, TextField, IconButton, InputAdornment } from '@mui/material';
-import CButton from "../../components/CButton";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { TextField, IconButton, InputAdornment } from '@mui/material';
+import CButton from '../../components/CButton';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import useAuthStore from "../../util/storage/authStore.ts";
+import {UserAdd} from "../../util/interfaces/IUser.ts";
+import {loginUser} from "../../util/api/APIUser.ts";
 
 const LoginForm: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+    const { isAuthenticated, setToken } = useAuthStore();
 
     const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(event.target.value);
@@ -16,11 +22,20 @@ const LoginForm: React.FC = () => {
         setPassword(event.target.value);
     };
 
-    const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        console.log('Username:', username);
-        console.log('Password:', password);
 
+        const user: UserAdd = { email: username, password };
+
+        try{
+            const response = await loginUser(user);
+            setToken(response.access_token);
+        }
+        catch (error) {
+            setError((error as Error).message);
+            setPassword("");
+
+        }
     };
 
     const handleClickShowPassword = () => {
@@ -31,8 +46,12 @@ const LoginForm: React.FC = () => {
         event.preventDefault();
     };
 
+    if (isAuthenticated) {
+        console.log("Already logged in");
+    }
+
     return (
-        <div className="flex flex-col items-center w-full p-5 ">
+        <div className="flex flex-col items-center w-full p-5">
             <div className="m-5 w-full">
                 <TextField
                     id="username"
@@ -66,7 +85,7 @@ const LoginForm: React.FC = () => {
                                     {showPassword ? <VisibilityOff /> : <Visibility />}
                                 </IconButton>
                             </InputAdornment>
-                        )
+                        ),
                     }}
                 />
             </div>
@@ -74,6 +93,8 @@ const LoginForm: React.FC = () => {
             <div className="mt-[40px] w-full">
                 <CButton text="Login" variant="outlined" col="error" onAction={handleSubmit} />
             </div>
+
+            {error && <div className="text-red-500">{error}</div>}
         </div>
     );
 };
