@@ -1,11 +1,10 @@
-# async def fetch_project(project_id):
 from typing import List
 
 from app.db.models.projectModel import Project
 from app.db.models.userModel import User
 from app.db.repos.projectRepo import ProjectRepo
 from app.db.repos.userRepo import UserRepo
-from app.schemas.projectSchema import ProjectAdd, ProjectGet
+from app.schemas.projectSchema import ProjectAdd
 
 
 async def get_projects() -> List[Project]:
@@ -32,4 +31,10 @@ async def add_user_to_project(project_id: int, user_email: str):
 async def get_project_users(project_id: int) -> List[User]:
     project = await ProjectRepo.db_get_project_by_id(project_id)
     result = await ProjectRepo.get_project_users(project)
+    return result
+
+
+async def get_user_projects(user_id: int) -> List[Project]:
+    user = await UserRepo.db_get_user_by_id(user_id)
+    result = await ProjectRepo.get_projects_by_user(user)
     return result

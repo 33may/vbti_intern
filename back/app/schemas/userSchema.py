@@ -20,9 +20,12 @@ class UserGet(BaseModel):
     id: int
     email: EmailStr
 
+class UserFull(UserGet):
+    type: str
 
-class UserLogin(UserAdd):
-    pass
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class UserCreated(BaseModel):

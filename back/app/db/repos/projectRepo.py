@@ -41,7 +41,7 @@ class ProjectRepo:
             return project
 
     @classmethod
-    async def add_user_to_project(cls, project_data: ProjectGet, user_data: UserGet):
+    async def add_user_to_project(cls, project_data: Project, user_data: User):
         async with sessionLocal() as session:
             user_project = UserProject(user_id=user_data.id, project_id=project_data.id)
             session.add(user_project)
@@ -49,9 +49,17 @@ class ProjectRepo:
             return
 
     @classmethod
-    async def get_project_users(cls, project: ProjectGet) -> list[User]:
+    async def get_project_users(cls, project: Project) -> list[User]:
         async with sessionLocal() as session:
             query = select(User).where(Project.id == project.id)
+            result = await session.execute(query)
+            users = result.scalars().all()
+            return users
+
+    @classmethod
+    async def get_projects_by_user(cls, user: User) -> list[Project]:
+        async with sessionLocal() as session:
+            query = select(Project).where(User.id == user.id)
             result = await session.execute(query)
             users = result.scalars().all()
             return users

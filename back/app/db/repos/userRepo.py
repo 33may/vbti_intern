@@ -28,7 +28,7 @@ class UserRepo:
             return users
 
     @classmethod
-    async def db_get_user(cls, id: int):
+    async def db_get_user_by_id(cls, id: int):
         async with sessionLocal() as session:
             query = select(User).where(User.id == id)
             result = await session.execute(query)

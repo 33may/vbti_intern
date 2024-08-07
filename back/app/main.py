@@ -1,18 +1,9 @@
 import sys
 import os
-from fastapi import FastAPI
+
+from app.utils.core.fastapiConfig import get_application
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.routers import userRouter
-from app.routers import projectRouter
-
-from app.utils.core.middleware import RenewTokenMiddleware
-
-app = FastAPI()
-
-app.add_middleware(RenewTokenMiddleware)
-
-app.include_router(userRouter.router)
-app.include_router(projectRouter.router)
+app = get_application()
 

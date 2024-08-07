@@ -3,7 +3,8 @@ from typing import List
 
 from app.db.models.userModel import User
 from app.db.repos.userRepo import UserRepo
-from app.schemas.userSchema import UserAdd, UserLogin, UserGet
+from app.schemas.token import TokenData
+from app.schemas.userSchema import UserAdd, UserLogin, UserGet, UserFull
 from app.utils.core.config import settings
 from app.utils.exceptions.WrongCredentials import WrongCredentials
 from app.utils.exceptions.alreadyExistEx import AlreadyExistEx
@@ -17,7 +18,7 @@ async def fetch_users() -> List[User]:
 
 
 async def fetch_user(id: int) -> User:
-    result = await UserRepo.db_get_user(id)
+    result = await UserRepo.db_get_user_by_id(id)
     if result is None:
         raise NotFound("User not found")
     return result

@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, UTC
 from jose import JWTError, jwt
 from app.utils.core.config import settings
 from app.schemas.token import TokenData
-from fastapi import HTTPException
 
 blacklist = {}
 
