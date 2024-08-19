@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.db import sessionLocal
@@ -8,7 +10,7 @@ from app.utils.Crypt import Crypt
 
 class UserRepo:
     @classmethod
-    async def db_add_user(cls, data: UserAdd):
+    async def db_add_user(cls, data: UserAdd) -> User:
         async with sessionLocal() as session:
             user_dict = data.model_dump()
             user_dict['password'] = Crypt.hash_password(user_dict['password'])
@@ -17,10 +19,10 @@ class UserRepo:
             session.add(user)
             await session.flush()
             await session.commit()
-            return user.id
+            return user
 
     @classmethod
-    async def db_get_users(cls):
+    async def db_get_users(cls) -> List[User]:
         async with sessionLocal() as session:
             query = select(User)
             result = await session.execute(query)
@@ -28,7 +30,7 @@ class UserRepo:
             return users
 
     @classmethod
-    async def db_get_user_by_id(cls, id: int):
+    async def db_get_user_by_id(cls, id: int) -> User:
         async with sessionLocal() as session:
             query = select(User).where(User.id == id)
             result = await session.execute(query)
@@ -37,7 +39,7 @@ class UserRepo:
 
 
     @classmethod
-    async def db_get_user_by_email(cls, email: str):
+    async def db_get_user_by_email(cls, email: str) -> User:
         async with sessionLocal() as session:
             query = select(User).where(User.email == email)
             result = await session.execute(query)

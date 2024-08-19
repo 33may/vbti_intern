@@ -12,7 +12,3 @@ sessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, autocommi
 
 class Base(DeclarativeBase):
     pass
-
-# async def get_db():
-#     async with sessionLocal() as session:
-#         yield session

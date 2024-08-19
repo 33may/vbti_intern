@@ -1,14 +1,16 @@
 from datetime import timedelta
 from typing import List
 
+from pycparser.ply.yacc import token
+
 from app.db.models.userModel import User
 from app.db.repos.userRepo import UserRepo
-from app.schemas.token import TokenData
+from app.schemas.token import Token
 from app.schemas.userSchema import UserAdd, UserLogin, UserGet, UserFull
 from app.utils.core.config import settings
 from app.utils.exceptions.WrongCredentials import WrongCredentials
 from app.utils.exceptions.alreadyExistEx import AlreadyExistEx
-from app.utils.jwt import create_access_token
+from app.utils.jwt import create_access_token, createToken
 from app.utils.exceptions.NotFound import NotFound
 
 
@@ -24,24 +26,21 @@ async def fetch_user(id: int) -> User:
     return result
 
 
-async def create_user(user: UserAdd) -> int:
+async def create_user(user: UserAdd) -> Token:
     existing_user = await UserRepo.db_get_user_by_email(user.email)
     if existing_user:
         raise AlreadyExistEx(message="Email already registered")
-    id = await UserRepo.db_add_user(user)
-    return id
+    created_user = await UserRepo.db_add_user(user)
+    token = createToken(created_user)
+    return token
 
 
-async def login_user(user: UserLogin):
+async def login_user(user: UserLogin) -> Token:
     user_record = await UserRepo.db_verify_user(user.email, user.password)
     if not user_record:
         raise WrongCredentials(message="Invalid credentials")
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user_record.email, "account_type": user_record.type}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token}
-
+    token = createToken(user_record)
+    return token
 
 async def get_user_by_email(email: str) -> User:
     result = await UserRepo.db_get_user_by_email(email)

@@ -2,15 +2,15 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.schemas.generalSchema import Message
-from app.schemas.projectSchema import ProjectGet, AddUserToProjectRequest
+from app.schemas.projectSchema import AddUserToProjectRequest
 from app.schemas.token import Token, TokenData
-from app.schemas.userSchema import UserGet, UserCreated, UserAdd, UserLogin, LogedIn
-from app.services.projectService import get_user_projects, add_user_to_project, get_project_users
+from app.schemas.userSchema import UserGet, UserAdd, UserLogin
+from app.services.projectService import  add_user_to_project, get_project_users
 from app.services.userService import fetch_users, create_user, login_user, fetch_user
 from app.utils.exceptions.NotFound import NotFound
 from app.utils.exceptions.WrongCredentials import WrongCredentials
 from app.utils.exceptions.alreadyExistEx import AlreadyExistEx
-from app.dependencies import get_current_user, get_current_admin_user
+from app.dependencies import get_current_admin_user
 from app.utils.jwt import add_token_to_blacklist
 
 router = APIRouter(
@@ -66,16 +66,16 @@ async def get_user(user_id: int, current_user_token: TokenData = Depends(get_cur
 
 
 @router.post("/register")
-async def register_user(user: UserAdd) -> UserCreated:
+async def register_user(user: UserAdd) -> Token:
     try:
-        new_user_id = await create_user(user)
-        return UserCreated(message="created", id=new_user_id)
+        access_token = await create_user(user)
+        return access_token
     except AlreadyExistEx as e:
         raise HTTPException(status_code=403, detail=e.message)
 
 
 @router.post("/login")
-async def login_for_access_token(form_data: UserLogin) -> Token:
+async def login(form_data: UserLogin) -> Token:
     try:
         access_token = await login_user(form_data)
         return access_token

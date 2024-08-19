@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, UTC
 from jose import JWTError, jwt
+
+from app.db.models.userModel import User
 from app.utils.core.config import settings
-from app.schemas.token import TokenData
+from app.schemas.token import TokenData, Token
 
 blacklist = {}
 
@@ -16,6 +18,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+def createToken(user: User) -> Token:
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "account_type": user.type}, expires_delta=access_token_expires
+    )
+    token = Token(access_token=access_token)
+    return token
 
 def verify_token(token: str, credentials_exception) -> TokenData:
     if token in blacklist and blacklist[token] > datetime.now():

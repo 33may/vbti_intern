@@ -28,11 +28,6 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserCreated(BaseModel):
-    message: str
-    id: int
-
-
 class LogedIn(BaseModel):
     message: str
 
