@@ -1,7 +1,6 @@
-// src/components/AdminRoute.tsx
 import React, { ComponentType } from 'react';
-import { Redirect, Route, RouteProps } from 'react-router-dom';
-import useAuthStore from '../util/storage/authStore.ts';
+import {Redirect, Route, RouteProps} from 'react-router-dom';
+import useAuthStore from '../util/storage/authStore';
 
 interface AdminRouteProps extends RouteProps {
     component: ComponentType<RouteProps>;
@@ -17,7 +16,12 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ component: Component, ...rest }
                 isAuthenticated && user && user.account_type === 'admin' ? (
                     <Component {...props} />
                 ) : (
-                    <Redirect to={{ pathname: '/login', state: { from: props.location } }} />
+                    <Redirect
+                        to={{
+                            pathname: '/login',
+                            state: { from: props.location },
+                        }}
+                    />
                 )
             }
         />

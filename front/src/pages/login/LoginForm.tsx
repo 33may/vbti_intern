@@ -6,6 +6,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import useAuthStore from "../../util/storage/authStore.ts";
 import {UserAdd} from "../../util/interfaces/IUser.ts";
 import {loginUser} from "../../util/api/APIUser.ts";
+import {Redirect} from "react-router-dom";
 
 const LoginForm: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -47,7 +48,7 @@ const LoginForm: React.FC = () => {
     };
 
     if (isAuthenticated) {
-        console.log("Already logged in");
+        return <Redirect to={{ pathname: "/projects" }} />;
     }
 
     return (

@@ -3,7 +3,7 @@ import {UserAdd} from "../interfaces/IUser.ts";
 import {createApi} from "./middleware.ts";
 
 
-const userApi = createApi('/user');
+const userApi = createApi('users');
 
 export const loginUser = async (user: UserAdd) => {
     try {

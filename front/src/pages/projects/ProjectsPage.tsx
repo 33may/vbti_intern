@@ -16,7 +16,7 @@ const ProjectsPage: React.FC = () => {
     return (
         <>
             <HeaderLogin />
-            <div className="w-[60vw] min-h-[60vh] mt-[20vh] flex flex-wrap justify-center mx-auto">
+            <div className="w-[80vw] min-h-[60vh] mt-[20vh] flex flex-wrap justify-center mx-auto">
                 <NewProjectCard />
                 {projects.map((project, index) => (
                     <ProjectCard key={index} title={project.title} description={project.description} id={project.id} />

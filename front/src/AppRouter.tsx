@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import {BrowserRouter as Router, Switch, Redirect, Route} from 'react-router-dom';
 import LoginPage from './pages/login/LoginPage.tsx';
 import ProjectPage from './pages/ProjectPage';
 import ProjectsPage from "./pages/projects/ProjectsPage.tsx";
@@ -9,7 +9,7 @@ const AppRouter: React.FC = () => {
     return (
         <Router>
             <Switch>
-                <LoginRoute exact path="/login" component={LoginPage} />
+                <Route exact path="/login" component={LoginPage} />
                 <LoginRoute exact path="/projects" component={ProjectsPage} />
                 <LoginRoute path="/project/*" component={ProjectPage} />
                 <Redirect to="/" />

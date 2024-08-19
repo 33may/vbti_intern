@@ -1,7 +1,6 @@
-// src/components/LoginRoute.tsx
-import React, {ComponentType} from 'react';
+import React, { ComponentType } from 'react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
-import useAuthStore from '../util/storage/authStore.ts';
+import useAuthStore from '../util/storage/authStore';
 
 interface LoginRouteProps extends RouteProps {
     component: ComponentType<RouteProps>;
@@ -10,7 +9,6 @@ interface LoginRouteProps extends RouteProps {
 const LoginRoute: React.FC<LoginRouteProps> = ({ component: Component, ...rest }) => {
     const { isAuthenticated } = useAuthStore();
 
-
     return (
         <Route
             {...rest}
@@ -18,7 +16,7 @@ const LoginRoute: React.FC<LoginRouteProps> = ({ component: Component, ...rest }
                 isAuthenticated ? (
                     <Component {...props} />
                 ) : (
-                    <Redirect to={{ pathname: '/projects' }} />
+                    <Redirect to={{ pathname: "/login" }} />
                 )
             }
         />
