@@ -1,9 +1,9 @@
-from sqlalchemy import select
+from sqlalchemy import select, Boolean
 from app.db.db import sessionLocal
 from app.db.models.projectModel import Project, UserProject
 from app.db.models.userModel import User
-from app.schemas.projectSchema import ProjectAdd, ProjectGet
-from app.schemas.userSchema import UserGet
+from app.db.repos.userRepo import UserRepo
+from app.schemas.projectSchema import ProjectAdd
 
 
 class ProjectRepo:
@@ -15,6 +15,19 @@ class ProjectRepo:
             session.add(project)
             await session.commit()
             return project
+
+    @classmethod
+    async def db_delete_project(cls, project_id: int) -> bool:
+        async with sessionLocal() as session:
+            query = select(Project).where(Project.id == project_id)
+            result = await session.execute(query)
+            project = result.scalars().first()
+
+            if project:
+                await session.delete(project)
+                await session.commit()
+                return True
+            return False
 
     @classmethod
     async def get_projects(cls) -> list[Project]:
@@ -41,25 +54,28 @@ class ProjectRepo:
             return project
 
     @classmethod
-    async def add_user_to_project(cls, project_data: Project, user_data: User):
+    async def add_user_to_project(cls, project_id: int, user_data: User, user_role: str):
         async with sessionLocal() as session:
-            user_project = UserProject(user_id=user_data.id, project_id=project_data.id)
+            user_project = UserProject(user_id=user_data.id, project_id=project_id, user_role=user_role)
             session.add(user_project)
             await session.commit()
             return
 
     @classmethod
-    async def get_project_users(cls, project: Project) -> list[User]:
+    async def get_project_users(cls, project_id: int) -> list[User]:
         async with sessionLocal() as session:
-            query = select(User).where(Project.id == project.id)
+            query = (select(User, UserProject.user_role)
+                .join(UserProject, User.id == UserProject.user_id)
+                .where(UserProject.project_id == project_id))
             result = await session.execute(query)
-            users = result.scalars().all()
-            return users
+            users_data = result.all()
+            return users_data
 
     @classmethod
-    async def get_projects_by_user(cls, user: User) -> list[Project]:
+    async def get_projects_by_user_email(cls, user_email: str) -> list[Project]:
         async with sessionLocal() as session:
-            query = select(Project).where(User.id == user.id)
+            query = select(User).where(User.email == user_email)
             result = await session.execute(query)
-            users = result.scalars().all()
-            return users
+            user = result.scalars().first()
+            return user.projects
+

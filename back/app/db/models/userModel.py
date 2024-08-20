@@ -9,4 +9,6 @@ class User(Base):
     password: Mapped[str] = mapped_column(String, nullable=False)
     type: Mapped[str] = mapped_column(String, nullable=False, default='user')
 
-    projects = relationship("Project", secondary="users_projects", back_populates="users", lazy="selectin")
+    projects = relationship(
+        "Project", secondary="users_projects", back_populates="users", lazy="selectin"
+    )

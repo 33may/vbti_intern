@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel
 
@@ -6,8 +7,11 @@ from pydantic import BaseModel
 class Token(BaseModel):
     access_token: str
 
+class tokenRole(str, Enum):
+    admin = "admin"
+    user = "user"
 
 class TokenData(BaseModel):
-    email: str | None = None
-    exp: datetime | None = None
-    account_type: str | None = None
+    email: str
+    exp: datetime
+    account_type: tokenRole

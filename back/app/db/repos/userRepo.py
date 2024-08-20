@@ -37,13 +37,17 @@ class UserRepo:
             user = result.scalars().first()
             return user
 
+    @classmethod
+    async def db_get_user_by_email_template(cls, email: str, session: AsyncSession) -> User:
+            query = select(User).where(User.email == email)
+            result = await session.execute(query)
+            user = result.scalars().first()
+            return user
 
     @classmethod
     async def db_get_user_by_email(cls, email: str) -> User:
         async with sessionLocal() as session:
-            query = select(User).where(User.email == email)
-            result = await session.execute(query)
-            user = result.scalars().first()
+            user = await cls.db_get_user_by_email_template(email, session)
             return user
 
     @classmethod

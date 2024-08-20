@@ -12,10 +12,13 @@ class Project(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
 
-    users = relationship("User", secondary="users_projects", back_populates="projects", lazy="selectin")
+    users = relationship(
+        "User", secondary="users_projects", back_populates="projects", lazy="selectin"
+    )
 
 
 class UserProject(Base):
     __tablename__ = "users_projects"
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), primary_key=True)
-    project_id: Mapped[int] = mapped_column(ForeignKey('projects.id'), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey('projects.id', ondelete="CASCADE"), primary_key=True)
+    user_role: Mapped[str] = mapped_column(String, nullable=False)

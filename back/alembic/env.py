@@ -1,24 +1,22 @@
-import asyncio
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool, create_engine
 from alembic import context
 
+# Импортируйте все модели и Base из одного места
+from app.db.db import Base
+from app.db.models.userModel import User
+from app.db.models.projectModel import Project, UserProject
+
 config = context.config
 
-# Interpret the config file for Python logging.
+# Интерпретация конфигурации для логирования
 fileConfig(config.config_file_name)
 
-# Import your models here
-from app.db.models.userModel import Base as UserBase
-# Import other models similarly if you have more
-# from app.db.models.otherModel import Base as OtherBase
-
-# Combine all the metadata
-target_metadata = UserBase.metadata
-# If you have more models, combine their metadata like this:
-# target_metadata = [UserBase.metadata, OtherBase.metadata]
+# Убедитесь, что target_metadata содержит метаданные всех моделей
+target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
+    """Запуск миграций в offline режиме."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -30,14 +28,8 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-def do_run_migrations(connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
-
-    with context.begin_transaction():
-        context.run_migrations()
-
 def run_migrations_online() -> None:
-    # Extract the URL from the configuration
+    """Запуск миграций в online режиме."""
     connectable = create_engine(
         config.get_main_option("sqlalchemy.url"),
         poolclass=pool.NullPool
