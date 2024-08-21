@@ -25,7 +25,6 @@ async def fetch_user(id: int) -> User:
         raise NotFound("User not found")
     return result
 
-
 async def create_user(user: UserAdd) -> Token:
     existing_user = await UserRepo.db_get_user_by_email(user.email)
     if existing_user:
@@ -33,6 +32,14 @@ async def create_user(user: UserAdd) -> Token:
     created_user = await UserRepo.db_add_user(user)
     token = createToken(created_user)
     return token
+
+
+async def delete_user(id: int):
+    user = await UserRepo.db_get_user_by_id(id)
+    if not user:
+        raise NotFound("User not found")
+    await UserRepo.db_delete_user(user)
+
 
 
 async def login_user(user: UserLogin) -> Token:

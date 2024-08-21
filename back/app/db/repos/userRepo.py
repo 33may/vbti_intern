@@ -22,6 +22,13 @@ class UserRepo:
             return user
 
     @classmethod
+    async def db_delete_user(cls, data: User):
+        async with sessionLocal() as session:
+            await session.delete(data)
+            await session.commit()
+            return
+
+    @classmethod
     async def db_get_users(cls) -> List[User]:
         async with sessionLocal() as session:
             query = select(User)

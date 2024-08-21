@@ -29,3 +29,6 @@ class deleteProgectRequest(BaseModel):
 class AddUserToProjectRequestById(BaseModel):
     user_role: UserRole
     user_id: int
+
+class DeleteUserFromProjectRequestById(BaseModel):
+    user_id: int

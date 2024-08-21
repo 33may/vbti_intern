@@ -17,7 +17,7 @@ class ProjectRepo:
             return project
 
     @classmethod
-    async def db_delete_project(cls, project_id: int) -> bool:
+    async def db_delete_project(cls, project_id: int):
         async with sessionLocal() as session:
             query = select(Project).where(Project.id == project_id)
             result = await session.execute(query)
@@ -26,8 +26,7 @@ class ProjectRepo:
             if project:
                 await session.delete(project)
                 await session.commit()
-                return True
-            return False
+            return
 
     @classmethod
     async def get_projects(cls) -> list[Project]:
@@ -59,6 +58,21 @@ class ProjectRepo:
             user_project = UserProject(user_id=user_data.id, project_id=project_id, user_role=user_role)
             session.add(user_project)
             await session.commit()
+            return
+
+    @classmethod
+    async def delete_user_from_project(cls, project_id: int, user_data: User):
+        async with sessionLocal() as session:
+            query = select(UserProject).where(
+                UserProject.project_id == project_id,
+                UserProject.user_id == user_data.id
+            )
+            result = await session.execute(query)
+            user_project = result.scalars().first()
+
+            if user_project:
+                await session.delete(user_project)
+                await session.commit()
             return
 
     @classmethod
