@@ -1,23 +1,23 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 
-
 from app.dependencies import get_current_admin_user, get_current_user
 from app.schemas.generalSchema import Message
-from app.schemas.projectSchema import ProjectGet, ProjectAdd, AddUserToProjectRequestById, ProjectUser, \
-    deleteProgectRequest, DeleteUserFromProjectRequestById
+from app.schemas.projectSchema import ProjectGet, ProjectAdd, deleteProgectRequest
 from app.schemas.token import TokenData
 from app.services.projectService import get_projects, create_new_project, \
-    get_project, get_user_projects, add_user_to_project, get_project_users, delete_project, delete_user_from_project
+    get_project, get_user_projects, delete_project
 from app.utils.exceptions.NotFound import NotFound
-from app.utils.exceptions.alreadyExistEx import AlreadyExistEx
 
 router = APIRouter(
     prefix="/projects",
     tags=["projects"],
 )
 
-@router.get("/my")
+@router.get("/my", response_model=List[ProjectGet], responses={
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def get_my_project(user_token: TokenData = Depends(get_current_user)) -> List[ProjectGet]:
     try:
         projects = await get_user_projects(user_token.email)
@@ -25,7 +25,10 @@ async def get_my_project(user_token: TokenData = Depends(get_current_user)) -> L
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/all")
+@router.get("/all", response_model=List[ProjectGet], responses={
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def get_all_projects(admin_token: TokenData = Depends(get_current_admin_user)) -> List[ProjectGet]:
     try:
         projects = await get_projects()
@@ -33,7 +36,11 @@ async def get_all_projects(admin_token: TokenData = Depends(get_current_admin_us
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/create")
+@router.post("/create", response_model=Message, responses={
+    201: {"description": "Project created successfully", "content": {"application/json": {"example": {"message": "Project created successfully"}}}},
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def create_project(project_data: ProjectAdd, admin_token: TokenData = Depends(get_current_admin_user)) -> Message:
     try:
         await create_new_project(project_data)
@@ -41,7 +48,12 @@ async def create_project(project_data: ProjectAdd, admin_token: TokenData = Depe
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/delete")
+@router.post("/delete", response_model=Message, responses={
+    200: {"description": "Project deleted successfully", "content": {"application/json": {"example": {"message": "Project deleted successfully"}}}},
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    404: {"description": "Project Not Found", "content": {"application/json": {"example": {"detail": "Project with ID X not found"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def delete_proj(request: deleteProgectRequest, admin_token: TokenData = Depends(get_current_admin_user)) -> Message:
     try:
         await delete_project(request.project_id)
@@ -51,43 +63,16 @@ async def delete_proj(request: deleteProgectRequest, admin_token: TokenData = De
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/{project_id}")
+@router.get("/{project_id}", response_model=ProjectGet, responses={
+    200: {"description": "Project found", "content": {"application/json": {"example": {"id": 1, "name": "Project Name", "description": "Project Description"}}}},
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    404: {"description": "Project Not Found", "content": {"application/json": {"example": {"detail": "Project with ID X not found"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def get_proj(project_id: int, admin_token: TokenData = Depends(get_current_admin_user)) -> ProjectGet:
     try:
         project = await get_project(project_id)
         return project
-    except NotFound as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/{project_id}/add_user")
-async def add_user_project(project_id: int, request: AddUserToProjectRequestById, admin_token: TokenData = Depends(get_current_admin_user)) -> Message:
-    try:
-        await add_user_to_project(project_id, request.user_id, request.user_role)
-        return Message(message="User added to project successfully")
-    except NotFound as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except AlreadyExistEx as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/{project_id}/delete_user")
-async def delete_user_project(project_id: int, request: DeleteUserFromProjectRequestById, admin_token: TokenData = Depends(get_current_admin_user)) -> Message:
-    try:
-        await delete_user_from_project(project_id, request.user_id)
-        return Message(message="User removed from project successfully")
-    except NotFound as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/{project_id}/get_users")
-async def get_users_on_project(project_id: int, admin_token: TokenData = Depends(get_current_admin_user)) -> List[ProjectUser]:
-    try:
-        users = await get_project_users(project_id)
-        return users
     except NotFound as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

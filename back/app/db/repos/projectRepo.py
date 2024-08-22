@@ -4,6 +4,7 @@ from app.db.models.projectModel import Project, UserProject
 from app.db.models.userModel import User
 from app.db.repos.userRepo import UserRepo
 from app.schemas.projectSchema import ProjectAdd
+from app.utils.exceptions.NotFound import NotFound
 
 
 class ProjectRepo:
@@ -86,10 +87,12 @@ class ProjectRepo:
             return users_data
 
     @classmethod
-    async def get_projects_by_user_email(cls, user_email: str) -> list[Project]:
+    async def get_projects_by_user_id(cls, user_id: int) -> list[Project]:
         async with sessionLocal() as session:
-            query = select(User).where(User.email == user_email)
+            query = select(User).where(User.id == user_id)
             result = await session.execute(query)
             user = result.scalars().first()
+            if not user:
+                raise NotFound("User not found")
             return user.projects
 

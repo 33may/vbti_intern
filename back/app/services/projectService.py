@@ -72,6 +72,6 @@ async def delete_user_from_project(project_id: int, user_id: int):
     await ProjectRepo.delete_user_from_project(project_id, user)
 
 
-async def get_user_projects(user_email: str) -> List[Project]:
-    projects = await ProjectRepo.get_projects_by_user_email(user_email)
+async def get_user_projects(user_id: int) -> List[Project]:
+    projects = await ProjectRepo.get_projects_by_user_id(user_id)
     return projects

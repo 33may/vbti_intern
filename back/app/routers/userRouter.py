@@ -15,14 +15,20 @@ router = APIRouter(
     tags=["users"],
 )
 
-
-@router.get("")
+@router.get("", response_model=List[UserGet], responses={
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def get_users(current_user_token: TokenData = Depends(get_current_admin_user)) -> List[UserGet]:
     users = await fetch_users()
     return users
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=UserGet, responses={
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    404: {"description": "User Not Found", "content": {"application/json": {"example": {"detail": "User with ID X not found"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def get_user(user_id: int, admin_token: TokenData = Depends(get_current_admin_user)) -> UserGet:
     try:
         user = await fetch_user(user_id)
@@ -31,7 +37,11 @@ async def get_user(user_id: int, admin_token: TokenData = Depends(get_current_ad
         raise HTTPException(status_code=404, detail=str(e.message))
 
 
-@router.get("/{user_id}/projects")
+@router.get("/{user_id}/projects", response_model=List[ProjectGet], responses={
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    404: {"description": "User Not Found", "content": {"application/json": {"example": {"detail": "User with ID X not found"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
 async def get_projects_by_user_id(user_id: int, admin_token: TokenData = Depends(get_current_admin_user)) -> List[ProjectGet]:
     try:
         projects = await get_user_projects(user_id)
@@ -40,8 +50,13 @@ async def get_projects_by_user_id(user_id: int, admin_token: TokenData = Depends
         raise HTTPException(status_code=404, detail=str(e.message))
 
 
-@router.post("/{user_id}/delete")
-async def delete_usr(user_id: int, admin_token: TokenData = Depends(get_current_admin_user)):
+@router.post("/{user_id}/delete", response_model=Message, responses={
+    200: {"description": "User deleted successfully", "content": {"application/json": {"example": {"message": "User deleted successfully."}}}},
+    401: {"description": "Unauthorized", "content": {"application/json": {"example": {"detail": "Could not validate credentials"}}}},
+    404: {"description": "User Not Found", "content": {"application/json": {"example": {"detail": "User with ID X not found"}}}},
+    500: {"description": "Internal Server Error", "content": {"application/json": {"example": {"detail": "An unexpected error occurred"}}}},
+})
+async def delete_usr(user_id: int, admin_token: TokenData = Depends(get_current_admin_user)) -> Message:
     try:
         await delete_user(user_id)
         return Message(message="User deleted successfully.")
