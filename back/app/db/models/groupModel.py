@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.db import Base
 
 
-class Project(Base):
-    __tablename__ = "projects"
+class Group(Base):
+    __tablename__ = "groups"
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
@@ -16,13 +16,13 @@ class Project(Base):
         "User", secondary="users_projects", back_populates="projects", lazy="selectin"
     )
 
-    groups = relationship(
-        "Group", secondary="project_group", back_populates="groups", lazy="selectin"
-    )
 
-
-class UserProject(Base):
-    __tablename__ = "users_projects"
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
+class ProjectGroup(Base):
+    __tablename__ = "project_group"
+    group_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey('projects.id', ondelete="CASCADE"), primary_key=True)
-    user_role: Mapped[str] = mapped_column(String, nullable=False)
+
+class UserGroup(Base):
+    __tablename__ = "user_group"
+    group_id: Mapped[int] = mapped_column(ForeignKey('groups.id', ondelete="CASCADE"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)

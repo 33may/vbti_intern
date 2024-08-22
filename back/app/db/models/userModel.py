@@ -12,3 +12,7 @@ class User(Base):
     projects = relationship(
         "Project", secondary="users_projects", back_populates="users", lazy="selectin"
     )
+
+    groups = relationship(
+        "Group", secondary="user_group", back_populates="groups", lazy="selectin"
+    )

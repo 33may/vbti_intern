@@ -1,9 +1,12 @@
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool, create_engine
+
+from sqlalchemy import pool, create_engine, Column, Identity
 from alembic import context
+
 
 # Импортируйте все модели и Base из одного места
 from app.db.db import Base
+from app.db.models.groupModel import Group, ProjectGroup, UserGroup
 from app.db.models.userModel import User
 from app.db.models.projectModel import Project, UserProject
 
@@ -14,6 +17,14 @@ fileConfig(config.config_file_name)
 
 # Убедитесь, что target_metadata содержит метаданные всех моделей
 target_metadata = Base.metadata
+
+def include_object(object, name, type_, reflected, compare_to):
+    """Filter out identity column changes."""
+    if type_ == "column" and isinstance(object, Column):
+        # Ignore server_default changes on identity columns
+        if isinstance(object.server_default, Identity):
+            return False
+    return True
 
 def run_migrations_offline() -> None:
     """Запуск миграций в offline режиме."""
